@@ -162,7 +162,7 @@ export const SleepAssessmentQuiz: React.FC = () => {
         });
       }
     }
-  }, []);
+  }, [state.currentQuestionIndex, state.isComplete]);
 
   if (state.isComplete && state.tier) {
     return (

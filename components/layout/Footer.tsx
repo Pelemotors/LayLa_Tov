@@ -32,7 +32,7 @@ export const Footer: React.FC = () => {
           <div className="col-span-1 md:col-span-2">
             <h3 className="text-2xl font-heading font-bold mb-4">ליאור</h3>
             <p className="text-white font-body mb-4 font-semibold">
-              יועצת שינה והדרכת הורים בשיטת 'לילה טוב'
+              יועצת שינה והדרכת הורים בשיטת &apos;לילה טוב&apos;
             </p>
             <p className="text-white/90 text-sm font-body">
               ליווי אישי ומותאם להורים לתינוקות ופעוטות

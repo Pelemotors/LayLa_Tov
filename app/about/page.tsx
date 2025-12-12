@@ -20,7 +20,7 @@ export default function AboutPage() {
           </h2>
           <p className="text-text-dark/80 font-body text-lg leading-relaxed mb-4">
             אני ליאור, יועצת שינה מקצועית עם ניסיון רב בליווי הורים לתינוקות ופעוטות.
-            השיטה שלי, "לילה טוב", מבוססת על גישה אמפתית ומתחשבת בצרכים של כל משפחה.
+            השיטה שלי, &quot;לילה טוב&quot;, מבוססת על גישה אמפתית ומתחשבת בצרכים של כל משפחה.
           </p>
           <p className="text-text-dark/80 font-body text-lg leading-relaxed mb-4">
             אני מאמינה שכל תינוק הוא ייחודי, וכל משפחה זקוקה לגישה מותאמת אישית.
@@ -43,7 +43,7 @@ export default function AboutPage() {
             השיטה שלי
           </h2>
           <p className="text-text-dark/80 font-body text-lg leading-relaxed mb-4">
-            השיטה "לילה טוב" משלבת הבנה עמוקה של צרכי התינוק עם תמיכה מלאה בהורים.
+            השיטה &quot;לילה טוב&quot; משלבת הבנה עמוקה של צרכי התינוק עם תמיכה מלאה בהורים.
             אני מאמינה בתהליך הדרגתי ומכבד, שמביא לתוצאות מהירות ובר קיימא.
           </p>
           <p className="text-text-dark/80 font-body text-lg leading-relaxed">

@@ -44,7 +44,7 @@ export default async function Home() {
             ליאור - יועצת שינה והדרכת הורים
           </h1>
           <p className="text-xl md:text-2xl text-text-dark mb-8 font-body max-w-2xl mx-auto font-semibold">
-            בשיטת 'לילה טוב' - ליווי אישי ומותאם להורים לתינוקות ופעוטות
+            בשיטת &apos;לילה טוב&apos; - ליווי אישי ומותאם להורים לתינוקות ופעוטות
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button variant="primary" size="lg" asChild>
@@ -72,7 +72,7 @@ export default async function Home() {
               </h2>
               <p className="text-text-dark font-body text-lg leading-relaxed mb-4 font-medium">
                 יועצת שינה מקצועית עם ניסיון רב בליווי הורים לתינוקות ופעוטות.
-                השיטה 'לילה טוב' מבוססת על גישה אמפתית ומתחשבת בצרכים של כל משפחה.
+                השיטה &apos;לילה טוב&apos; מבוססת על גישה אמפתית ומתחשבת בצרכים של כל משפחה.
               </p>
               <Button variant="secondary" size="md" asChild>
                 <Link href="/about">קראי עוד</Link>
@@ -93,7 +93,7 @@ export default async function Home() {
             </div>
             <div className="flex-grow">
               <h2 className="text-3xl font-heading font-bold text-text-dark mb-4">
-                השיטה 'לילה טוב'
+                השיטה &apos;לילה טוב&apos;
               </h2>
               <p className="text-text-dark font-body text-lg leading-relaxed mb-4 font-medium">
                 שיטה ייחודית המשלבת הבנה עמוקה של צרכי התינוק עם תמיכה מלאה בהורים.
@@ -165,21 +165,21 @@ export default async function Home() {
           <Card className="text-center border-2 border-accent-sky/30">
             <div className="text-4xl mb-4">⭐⭐⭐⭐⭐</div>
             <p className="text-text-dark font-body mb-4 italic">
-              "ליאור עזרה לנו להבין את הצרכים של התינוק שלנו. תוך שבוע כבר ראינו שיפור משמעותי!"
+              &quot;ליאור עזרה לנו להבין את הצרכים של התינוק שלנו. תוך שבוע כבר ראינו שיפור משמעותי!&quot;
             </p>
             <p className="text-accent-sky font-heading font-semibold">שרה, אמא ל-10 חודשים</p>
           </Card>
           <Card className="text-center border-2 border-accent-lavender/30">
             <div className="text-4xl mb-4">⭐⭐⭐⭐⭐</div>
             <p className="text-text-dark font-body mb-4 italic">
-              "התהליך היה מכבד ומתחשב. ליאור הייתה זמינה לכל שאלה והדרכה. ממליצה בחום!"
+              &quot;התהליך היה מכבד ומתחשב. ליאור הייתה זמינה לכל שאלה והדרכה. ממליצה בחום!&quot;
             </p>
             <p className="text-accent-lavender font-heading font-semibold">מיכל, אמא ל-1.5 שנים</p>
           </Card>
           <Card className="text-center border-2 border-accent-pink/30">
             <div className="text-4xl mb-4">⭐⭐⭐⭐⭐</div>
             <p className="text-text-dark font-body mb-4 italic">
-              "לבסוף יש לנו לילות שקטים! התהליך היה הדרגתי ומכבד, בדיוק מה שחיפשנו."
+              &quot;לבסוף יש לנו לילות שקטים! התהליך היה הדרגתי ומכבד, בדיוק מה שחיפשנו.&quot;
             </p>
             <p className="text-accent-pink font-heading font-semibold">רונית, אמא ל-8 חודשים</p>
           </Card>

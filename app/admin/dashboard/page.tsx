@@ -65,7 +65,7 @@ export default function DashboardPage() {
 
         <Card>
           <h3 className="text-lg font-heading font-semibold text-text-dark mb-2">
-            סה"כ לידים
+            סה&quot;כ לידים
           </h3>
           <p className="text-3xl font-heading font-bold text-text-dark">
             {stats.totalLeads}

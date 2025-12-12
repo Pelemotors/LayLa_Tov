@@ -38,7 +38,7 @@ export default function TestimonialsPage() {
               ))}
             </div>
             <p className="text-text-dark/80 font-body text-lg leading-relaxed mb-4">
-              "{testimonial.text}"
+              &quot;{testimonial.text}&quot;
             </p>
             <div className="text-text-dark font-heading font-semibold">
               {testimonial.name} - גיל הילד: {testimonial.childAge}
