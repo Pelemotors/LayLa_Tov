@@ -3,7 +3,7 @@ import { Card } from '@/components/ui/Card';
 
 export const metadata: Metadata = {
   title: 'אודות ליאור - יועצת שינה והדרכת הורים',
-  description: 'ליאור - יועצת שינה מקצועית עם ניסיון רב בליווי הורים לתינוקות ופעוטות בשיטת "לילה טוב"',
+  description: 'ליאור - יועצת שינה מקצועית עם ניסיון רב בליווי הורים לתינוקות ופעוטות בשיטת &quot;לילה טוב&quot;',
 };
 
 export default function AboutPage() {

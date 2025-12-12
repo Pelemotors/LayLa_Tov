@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/Button';
 import Link from 'next/link';
 
 export const metadata: Metadata = {
-  title: 'השיטה "לילה טוב" - ייעוץ שינה לתינוקות',
+  title: 'השיטה &quot;לילה טוב&quot; - ייעוץ שינה לתינוקות',
   description: 'שיטה ייחודית לייעוץ שינה המשלבת הבנה עמוקה של צרכי התינוק עם תמיכה מלאה בהורים',
 };
 
