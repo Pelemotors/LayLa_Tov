@@ -1,0 +1,31 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-accent-sky: #7BC4D8;
+  --color-accent-sky-light: #A8D8EA;
+  --color-accent-sky-dark: #5BA8C0;
+  --color-accent-lavender: #B895D4;
+  --color-accent-lavender-light: #CDB4DB;
+  --color-accent-lavender-dark: #9A7AB8;
+  --color-accent-pink: #F0A5B0;
+  --color-accent-pink-light: #F7CAD0;
+  --color-accent-pink-dark: #E87A8A;
+  --color-bg-cream: #F9F7F3;
+  --color-text-dark: #2D2D2D;
+  --color-text-light: #ffffff;
+}
+
+@layer base {
+  body {
+    @apply bg-background-cream text-text-dark;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
