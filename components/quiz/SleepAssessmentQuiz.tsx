@@ -174,6 +174,7 @@ export const SleepAssessmentQuiz: React.FC = () => {
       isComplete: false,
       score: null,
       tier: null,
+      leadSaved: false,
     });
     localStorage.removeItem('quiz_progress');
   };
