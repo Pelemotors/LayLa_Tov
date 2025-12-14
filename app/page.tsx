@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { supabaseServer } from '@/lib/supabaseServerClient';
@@ -36,22 +37,29 @@ export default async function Home() {
         
         <div className="relative z-10">
           <div className="flex justify-center mb-6">
-            <div className="w-32 h-32 bg-gradient-to-br from-accent-sky to-accent-lavender rounded-full flex items-center justify-center text-6xl shadow-xl">
-              🌙
+            <div className="relative w-64 h-64 md:w-80 md:h-80 rounded-3xl overflow-hidden shadow-2xl border-4 border-white">
+              <Image
+                src="/f9632597-4203-424c-b071-f7a7272e2a20.jpeg"
+                alt="ליאור - יועצת שינה והדרכת הורים"
+                fill
+                className="object-cover"
+                priority
+                sizes="(max-width: 768px) 256px, 320px"
+              />
             </div>
           </div>
-          <h1 className="text-4xl md:text-6xl font-heading font-bold text-text-dark mb-6 drop-shadow-sm">
-            ליאור - יועצת שינה והדרכת הורים
+          <h1 className="text-3xl md:text-5xl font-heading font-bold text-text-dark mb-6 drop-shadow-sm max-w-4xl mx-auto leading-tight">
+            אני ליאור יועצת שינה מוסמכת בשיטת לילה טוב – מלווה הורים בביטחון, באהבה ובשפה פשוטה.
           </h1>
           <p className="text-xl md:text-2xl text-text-dark mb-8 font-body max-w-2xl mx-auto font-semibold">
-            בשיטת &apos;לילה טוב&apos; - ליווי אישי ומותאם להורים לתינוקות ופעוטות
+            כל ילד יכול לישון טוב – וכל הורה יכול לישון לילה שלם. בואו לגלות איך זה אפשרי גם אצלכם.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button variant="primary" size="lg" asChild>
-              <Link href="/assessment">בדיקת מצב שינה</Link>
+              <Link href="/contact">לתיאום שיחת ייעוץ ראשונית ללא התחייבות</Link>
             </Button>
             <Button variant="secondary" size="lg" asChild>
-              <Link href="/contact">בואי נדבר</Link>
+              <Link href="/assessment">בדיקת מצב שינה</Link>
             </Button>
           </div>
         </div>
@@ -62,8 +70,14 @@ export default async function Home() {
         <Card className="border-2 border-accent-lavender/30 bg-gradient-to-br from-white to-accent-lavender/10">
           <div className="flex flex-col md:flex-row gap-6 items-center">
             <div className="flex-shrink-0">
-              <div className="w-48 h-48 bg-gradient-to-br from-accent-lavender to-accent-pink rounded-full flex items-center justify-center text-7xl shadow-lg">
-                👩‍⚕️
+              <div className="relative w-48 h-48 md:w-64 md:h-64 rounded-2xl overflow-hidden shadow-lg">
+                <Image
+                  src="/071e80cd-504a-4b37-b245-9d04b0a15433.jpeg"
+                  alt="ליאור עם תינוק"
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 768px) 192px, 256px"
+                />
               </div>
             </div>
             <div className="flex-grow">
@@ -87,8 +101,14 @@ export default async function Home() {
         <Card className="border-2 border-accent-pink/30 bg-gradient-to-br from-white to-accent-pink/10">
           <div className="flex flex-col md:flex-row-reverse gap-6 items-center">
             <div className="flex-shrink-0">
-              <div className="w-48 h-48 bg-gradient-to-br from-accent-pink to-accent-sky rounded-full flex items-center justify-center text-7xl shadow-lg">
-                💤
+              <div className="relative w-48 h-48 md:w-64 md:h-64 rounded-2xl overflow-hidden shadow-lg">
+                <Image
+                  src="/bc0eae9e-37a7-4101-857a-d2976f2cfbe1.jpeg"
+                  alt="פעוט משחק"
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 768px) 192px, 256px"
+                />
               </div>
             </div>
             <div className="flex-grow">
@@ -197,7 +217,17 @@ export default async function Home() {
           <div className="absolute top-0 right-0 w-32 h-32 bg-white/20 rounded-full blur-2xl"></div>
           <div className="absolute bottom-0 left-0 w-32 h-32 bg-white/20 rounded-full blur-2xl"></div>
           <div className="relative z-10">
-            <div className="text-6xl mb-4">🌙</div>
+            <div className="flex justify-center mb-4">
+              <div className="relative w-24 h-24 rounded-full overflow-hidden shadow-lg border-2 border-white">
+                <Image
+                  src="/2c30980c-7f21-4992-8962-19feefc79968.jpeg"
+                  alt="משפחה"
+                  fill
+                  className="object-cover"
+                  sizes="96px"
+                />
+              </div>
+            </div>
             <h2 className="text-3xl font-heading font-bold text-text-dark mb-4">
               מוכנה להתחיל?
             </h2>

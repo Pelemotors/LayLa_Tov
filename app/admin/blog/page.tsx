@@ -2,21 +2,47 @@ import { Metadata } from 'next';
 import { Card } from '@/components/ui/Card';
 import Link from 'next/link';
 import { Button } from '@/components/ui/Button';
+import { supabaseServer } from '@/lib/supabaseServerClient';
+import { DeleteButton } from './DeleteButton';
 
 export const metadata: Metadata = {
-  title: 'ניהול בלוג - מנהל',
-  description: 'ניהול מאמרי הבלוג',
+  title: 'ניהול מאמרים - מנהל',
+  description: 'ניהול מאמרים',
 };
 
-export default function BlogPage() {
-  // TODO: Fetch posts from Supabase
-  const posts: any[] = [];
+async function getPosts() {
+  try {
+    const { data, error } = await supabaseServer
+      .from('blog_posts')
+      .select(`
+        *,
+        blog_categories (
+          name_he,
+          slug
+        )
+      `)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Error fetching posts:', error);
+      return [];
+    }
+
+    return data || [];
+  } catch (error) {
+    console.error('Error fetching posts:', error);
+    return [];
+  }
+}
+
+export default async function BlogPage() {
+  const posts = await getPosts();
 
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-4xl font-heading font-bold text-text-dark">
-          ניהול בלוג
+          ניהול מאמרים
         </h1>
         <Button variant="primary" size="md" asChild>
           <Link href="/admin/blog/new">מאמר חדש</Link>
@@ -83,7 +109,7 @@ export default function BlogPage() {
                 {posts.map((post) => (
                   <tr key={post.id} className="border-b border-accent-sky/10 hover:bg-accent-sky/5">
                     <td className="py-4 px-4 font-body text-text-dark">{post.title_he}</td>
-                    <td className="py-4 px-4 font-body text-text-dark">{post.category_name || '-'}</td>
+                    <td className="py-4 px-4 font-body text-text-dark">{post.blog_categories?.name_he || '-'}</td>
                     <td className="py-4 px-4 font-body text-text-dark">
                       {post.published_at
                         ? new Date(post.published_at).toLocaleDateString('he-IL')
@@ -97,12 +123,15 @@ export default function BlogPage() {
                       )}
                     </td>
                     <td className="py-4 px-4">
-                      <Link
-                        href={`/admin/blog/${post.id}/edit`}
-                        className="text-accent-sky hover:text-accent-lavender font-body ml-4"
-                      >
-                        עריכה
-                      </Link>
+                      <div className="flex gap-4">
+                        <Link
+                          href={`/admin/blog/${post.id}/edit`}
+                          className="text-accent-sky hover:text-accent-lavender font-body"
+                        >
+                          עריכה
+                        </Link>
+                        <DeleteButton postId={post.id} />
+                      </div>
                     </td>
                   </tr>
                 ))}

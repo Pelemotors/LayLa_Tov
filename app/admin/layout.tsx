@@ -31,7 +31,7 @@ export default function AdminLayout({
                 href="/admin/blog"
                 className="text-text-dark/70 hover:text-text-dark font-body"
               >
-                בלוג
+                מאמרים
               </Link>
               <Link
                 href="/admin/testimonials"

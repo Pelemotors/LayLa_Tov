@@ -105,7 +105,7 @@ export default function DashboardPage() {
         <Link href="/admin/blog">
           <Card className="hover:shadow-lg transition-shadow cursor-pointer text-center">
             <h3 className="text-xl font-heading font-semibold text-text-dark mb-2">
-              ניהול בלוג
+              ניהול מאמרים
             </h3>
             <p className="text-text-dark/60 font-body">יצירה ועריכה של מאמרים</p>
           </Card>

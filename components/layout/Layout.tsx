@@ -1,4 +1,7 @@
+'use client';
+
 import React from 'react';
+import { usePathname } from 'next/navigation';
 import { Header } from './Header';
 import { Footer } from './Footer';
 import { StickyWhatsAppButton } from './StickyWhatsAppButton';
@@ -9,13 +12,20 @@ interface LayoutProps {
 }
 
 export const Layout: React.FC<LayoutProps> = ({ children }) => {
+  const pathname = usePathname();
+  const isAdminRoute = pathname?.startsWith('/admin');
+
   return (
     <div className="min-h-screen flex flex-col bg-background-cream">
-      <Header />
+      {!isAdminRoute && <Header />}
       <main className="flex-grow">{children}</main>
-      <Footer />
-      <StickyWhatsAppButton />
-      <StickyCTAButton />
+      {!isAdminRoute && <Footer />}
+      {!isAdminRoute && (
+        <>
+          <StickyWhatsAppButton />
+          <StickyCTAButton />
+        </>
+      )}
     </div>
   );
 };

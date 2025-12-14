@@ -13,7 +13,7 @@ export const Header: React.FC = () => {
     { href: '/method', label: 'השיטה' },
     { href: '/programs', label: 'מסלולים' },
     { href: '/testimonials', label: 'המלצות' },
-    { href: '/blog', label: 'בלוג' },
+    { href: '/blog', label: 'מאמרים' },
     { href: '/contact', label: 'צור קשר' },
   ];
 
@@ -22,9 +22,12 @@ export const Header: React.FC = () => {
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
-          <Link href="/" className="flex items-center">
+          <Link href="/" className="flex flex-col items-start hover:opacity-80 transition-opacity">
             <span className="text-2xl font-heading font-bold text-text-dark bg-gradient-to-r from-accent-sky to-accent-lavender bg-clip-text text-transparent">
               ליאור
+            </span>
+            <span className="text-xs text-text-dark/60 font-body hidden sm:block">
+              יועצת שינה והדרכת הורים
             </span>
           </Link>
 

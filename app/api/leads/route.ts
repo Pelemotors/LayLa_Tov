@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseServer } from '@/lib/supabaseServerClient';
+import { sendContactFormEmail } from '@/lib/email';
+import { sendWhatsAppNotification } from '@/lib/whatsapp';
 
 // Simple rate limiting (in-memory, for production use Redis or similar)
 const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
@@ -85,7 +87,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Sanitize input
-    const sanitizedData = {
+    const sanitizedData: any = {
       name: String(body.name || 'שאלון אנונימי').trim().substring(0, 255),
       phone: String(body.phone || '').trim().substring(0, 20),
       child_age: String(body.child_age || '').trim().substring(0, 50),
@@ -93,9 +95,17 @@ export async function POST(request: NextRequest) {
       source: body.source || 'contact_form',
       quiz_score: body.quiz_score ? parseInt(String(body.quiz_score)) : null,
       quiz_tier: body.quiz_tier ? parseInt(String(body.quiz_tier)) : null,
-      ip_address: ip !== 'unknown' ? ip : null,
-      user_agent: request.headers.get('user-agent') || null,
     };
+
+    // Add optional fields only if they exist in the schema
+    // These fields might not exist in older database schemas
+    if (ip !== 'unknown') {
+      sanitizedData.ip_address = ip;
+    }
+    const userAgent = request.headers.get('user-agent');
+    if (userAgent) {
+      sanitizedData.user_agent = userAgent;
+    }
 
     // Insert into Supabase
     const { data, error } = await supabaseServer
@@ -112,8 +122,57 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // TODO: Send email notification
-    // This will be implemented when email service is configured
+    // Save quiz responses if provided
+    if (body.quiz_responses && Array.isArray(body.quiz_responses) && body.quiz_responses.length > 0 && data?.id) {
+      const responsesToInsert = body.quiz_responses.map((response: any) => ({
+        lead_id: data.id,
+        question_index: response.question_index,
+        answer_value: String(response.answer_value || '').trim(),
+        answer_score: parseInt(String(response.answer_score || 0)),
+      }));
+
+      const { error: responsesError } = await supabaseServer
+        .from('quiz_responses')
+        .insert(responsesToInsert);
+
+      if (responsesError) {
+        console.error('Error saving quiz responses:', responsesError);
+        // Don't fail the entire request if responses fail to save
+      }
+    }
+
+    // Send email notification (non-blocking)
+    console.log('Sending email notification for lead:', data.id);
+    sendContactFormEmail({
+      name: sanitizedData.name,
+      phone: sanitizedData.phone,
+      child_age: sanitizedData.child_age,
+      message: sanitizedData.message,
+      source: sanitizedData.source,
+      quiz_score: sanitizedData.quiz_score,
+      quiz_tier: sanitizedData.quiz_tier,
+    })
+      .then((success) => {
+        if (success) {
+          console.log('Email sent successfully for lead:', data.id);
+        } else {
+          console.error('Email sending failed for lead:', data.id);
+        }
+      })
+      .catch((err) => {
+        console.error('Failed to send email for lead:', data.id, err);
+      });
+
+    // Send WhatsApp notification (non-blocking)
+    sendWhatsAppNotification({
+      name: sanitizedData.name,
+      phone: sanitizedData.phone,
+      child_age: sanitizedData.child_age,
+      message: sanitizedData.message,
+      source: sanitizedData.source,
+    }).catch((err) => {
+      console.error('Failed to send WhatsApp:', err);
+    });
 
     return NextResponse.json(
       { success: true, lead_id: data.id },

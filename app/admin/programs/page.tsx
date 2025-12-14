@@ -1,7 +1,8 @@
 import { Metadata } from 'next';
-import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { supabaseServer } from '@/lib/supabaseServerClient';
+import { ProgramsList } from './ProgramsList';
+import Link from 'next/link';
 
 export const metadata: Metadata = {
   title: 'ניהול מסלולים - מנהל',
@@ -36,52 +37,12 @@ export default async function ProgramsPage() {
         <h1 className="text-4xl font-heading font-bold text-text-dark">
           ניהול מסלולים
         </h1>
-        <Button variant="primary" size="md">
-          מסלול חדש
+        <Button variant="primary" size="md" asChild>
+          <Link href="/admin/programs/new">מסלול חדש</Link>
         </Button>
       </div>
 
-      {/* Programs List */}
-      {programs.length === 0 ? (
-        <Card className="text-center py-12">
-          <p className="text-text-dark/60 font-body mb-4">
-            אין מסלולים עדיין
-          </p>
-          <Button variant="primary" size="md">
-            צרי מסלול ראשון
-          </Button>
-        </Card>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {programs.map((program) => (
-            <Card key={program.id}>
-              <div className="flex justify-between items-start mb-4">
-                <h3 className="text-2xl font-heading font-bold text-text-dark">
-                  {program.name_he}
-                </h3>
-                {program.active ? (
-                  <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-body">
-                    פעיל
-                  </span>
-                ) : (
-                  <span className="bg-gray-100 text-gray-800 px-3 py-1 rounded-full text-sm font-body">
-                    לא פעיל
-                  </span>
-                )}
-              </div>
-              <p className="text-text-dark/80 font-body mb-4">{program.description_he}</p>
-              <div className="flex gap-4">
-                <Button variant="primary" size="sm">
-                  עריכה
-                </Button>
-                <Button variant="secondary" size="sm">
-                  מחיקה
-                </Button>
-              </div>
-            </Card>
-          ))}
-        </div>
-      )}
+      <ProgramsList initialPrograms={programs} />
     </div>
   );
 }

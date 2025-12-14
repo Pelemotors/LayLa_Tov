@@ -73,7 +73,7 @@ export async function PATCH(
   }
 }
 
-// DELETE - Soft delete lead
+// DELETE - Delete lead permanently
 export async function DELETE(
   request: NextRequest,
   { params }: { params: { id: string } }
@@ -83,7 +83,7 @@ export async function DELETE(
 
     const { error } = await supabaseServer
       .from('leads')
-      .update({ status: 'archived' })
+      .delete()
       .eq('id', params.id);
 
     if (error) {

@@ -11,6 +11,7 @@ interface QuizState {
   isComplete: boolean;
   score: number | null;
   tier: 1 | 2 | 3 | null;
+  leadSaved: boolean;
 }
 
 export const SleepAssessmentQuiz: React.FC = () => {
@@ -20,6 +21,7 @@ export const SleepAssessmentQuiz: React.FC = () => {
     isComplete: false,
     score: null,
     tier: null,
+    leadSaved: false,
   });
 
   // Load progress from localStorage
@@ -105,40 +107,63 @@ export const SleepAssessmentQuiz: React.FC = () => {
       });
     }
 
-    // Save lead to database
-    saveLeadToDatabase(score, tier);
-
+    // Don't save lead yet - wait for user to provide contact info
     setState({
       ...state,
       isComplete: true,
       score,
       tier,
+      leadSaved: false,
     });
 
     // Clear localStorage
     localStorage.removeItem('quiz_progress');
   };
 
-  const saveLeadToDatabase = async (score: number, tier: 1 | 2 | 3) => {
+  const saveLeadToDatabase = async (name: string, phone: string) => {
+    if (!state.score || !state.tier) return;
+
     try {
-      await fetch('/api/leads', {
+      // Prepare quiz responses
+      const quizResponses = state.answers
+        .map((answerIndex, questionIndex) => {
+          if (answerIndex === null) return null;
+          const question = quizQuestions[questionIndex];
+          const answer = question.answers[answerIndex];
+          return {
+            question_index: questionIndex,
+            answer_value: answer.text,
+            answer_score: answer.score,
+          };
+        })
+        .filter((r): r is { question_index: number; answer_value: string; answer_score: number } => r !== null);
+
+      const response = await fetch('/api/leads', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          name: 'שאלון אנונימי',
-          phone: '',
+          name: name,
+          phone: phone,
           child_age: state.answers[0] !== null ? quizQuestions[0].answers[state.answers[0]].text : '',
           message: '',
           source: 'sleep_quiz',
-          quiz_score: score,
-          quiz_tier: tier,
+          quiz_score: state.score,
+          quiz_tier: state.tier,
+          quiz_responses: quizResponses,
         }),
       });
+
+      if (response.ok) {
+        setState({
+          ...state,
+          leadSaved: true,
+        });
+      }
     } catch (error) {
-      // Silently fail - don't interrupt user experience
       console.error('Failed to save quiz result:', error);
+      throw error;
     }
   };
 
@@ -170,6 +195,7 @@ export const SleepAssessmentQuiz: React.FC = () => {
         result={quizResults[state.tier]}
         score={state.score || 0}
         onRetake={handleRetake}
+        onSaveLead={saveLeadToDatabase}
       />
     );
   }
