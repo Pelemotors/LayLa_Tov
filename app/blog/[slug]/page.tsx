@@ -69,16 +69,14 @@ export default async function BlogPostPage({
   }
 
   // Increment view count (non-blocking)
-  supabaseServer
-    .from('blog_posts')
-    .update({ view_count: (post.view_count || 0) + 1 })
-    .eq('id', post.id)
-    .then(() => {
-      // Silently update view count
-    })
-    .catch((error) => {
-      console.error('Error updating view count:', error);
-    });
+  void Promise.resolve(
+    supabaseServer
+      .from('blog_posts')
+      .update({ view_count: (post.view_count || 0) + 1 })
+      .eq('id', post.id)
+  ).catch((error) => {
+    console.error('Error updating view count:', error);
+  });
 
   return (
     <div className="container mx-auto px-4 py-12">
