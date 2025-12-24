@@ -16,9 +16,29 @@ const heebo = Heebo({
   display: "swap",
 });
 
+const baseUrl =
+  process.env.NEXT_PUBLIC_BASE_URL || "https://example.com";
+
 export const metadata: Metadata = {
-  title: "ליאור - יועצת שינה והדרכת הורים בשיטת 'לילה טוב'",
-  description: "ייעוץ שינה מקצועי לתינוקות ופעוטות. ליווי אישי ומותאם להורים",
+  metadataBase: new URL(baseUrl),
+  title: {
+    default: "ליאור - יועצת שינה והדרכת הורים בשיטת 'לילה טוב'",
+    template: "%s | ליאור יועצת שינה",
+  },
+  description:
+    "ייעוץ שינה מקצועי לתינוקות ופעוטות בשיטת 'לילה טוב' – ליווי אישי ומותאם להורים, לילות רגועים ושקט בבית.",
+  openGraph: {
+    type: "website",
+    locale: "he_IL",
+    url: baseUrl,
+    title: "ליאור - יועצת שינה והדרכת הורים בשיטת 'לילה טוב'",
+    description:
+      "ייעוץ שינה מקצועי לתינוקות ופעוטות בשיטת 'לילה טוב'. ליווי אישי, אמפתי ומותאם למשפחה שלך.",
+    siteName: "ליאור יועצת שינה",
+  },
+  alternates: {
+    canonical: "/",
+  },
 };
 
 export default function RootLayout({

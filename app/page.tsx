@@ -3,6 +3,7 @@ import Image from 'next/image';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { supabaseServer } from '@/lib/supabaseServerClient';
+import { RotatingTestimonials } from '@/components/testimonials/RotatingTestimonials';
 
 async function getPrograms() {
   try {
@@ -25,8 +26,30 @@ async function getPrograms() {
   }
 }
 
+async function getFeaturedTestimonials() {
+  try {
+    const { data, error } = await supabaseServer
+      .from('testimonials')
+      .select('*')
+      .eq('published', true)
+      .order('display_order', { ascending: true, nullsFirst: false })
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Error fetching testimonials:', error);
+      return [];
+    }
+
+    return data || [];
+  } catch (error) {
+    console.error('Error fetching testimonials:', error);
+    return [];
+  }
+}
+
 export default async function Home() {
   const programs = await getPrograms();
+  const featuredTestimonials = await getFeaturedTestimonials();
   return (
     <div className="container mx-auto px-4 py-12">
       {/* Hero Section */}
@@ -181,34 +204,14 @@ export default async function Home() {
         <h2 className="text-3xl font-heading font-bold text-text-dark mb-8 text-center">
           מה אומרים עלינו
         </h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Card className="text-center border-2 border-accent-sky/30">
-            <div className="text-4xl mb-4">⭐⭐⭐⭐⭐</div>
-            <p className="text-text-dark font-body mb-4 italic">
-              &quot;ליאור עזרה לנו להבין את הצרכים של התינוק שלנו. תוך שבוע כבר ראינו שיפור משמעותי!&quot;
-            </p>
-            <p className="text-accent-sky font-heading font-semibold">שרה, אמא ל-10 חודשים</p>
-          </Card>
-          <Card className="text-center border-2 border-accent-lavender/30">
-            <div className="text-4xl mb-4">⭐⭐⭐⭐⭐</div>
-            <p className="text-text-dark font-body mb-4 italic">
-              &quot;התהליך היה מכבד ומתחשב. ליאור הייתה זמינה לכל שאלה והדרכה. ממליצה בחום!&quot;
-            </p>
-            <p className="text-accent-lavender font-heading font-semibold">מיכל, אמא ל-1.5 שנים</p>
-          </Card>
-          <Card className="text-center border-2 border-accent-pink/30">
-            <div className="text-4xl mb-4">⭐⭐⭐⭐⭐</div>
-            <p className="text-text-dark font-body mb-4 italic">
-              &quot;לבסוף יש לנו לילות שקטים! התהליך היה הדרגתי ומכבד, בדיוק מה שחיפשנו.&quot;
-            </p>
-            <p className="text-accent-pink font-heading font-semibold">רונית, אמא ל-8 חודשים</p>
-          </Card>
-        </div>
-        <div className="text-center mt-6">
-          <Button variant="secondary" size="md" asChild>
-            <Link href="/testimonials">קראי עוד המלצות</Link>
-          </Button>
-        </div>
+        <RotatingTestimonials testimonials={featuredTestimonials} />
+        {featuredTestimonials.length > 0 && (
+          <div className="text-center mt-6">
+            <Button variant="secondary" size="md" asChild>
+              <Link href="/testimonials">קראי עוד המלצות</Link>
+            </Button>
+          </div>
+        )}
       </section>
 
       {/* CTA Section */}

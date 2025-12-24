@@ -74,6 +74,8 @@ export default function ContactPage() {
         }),
       });
 
+      const responseData = await response.json();
+
       if (response.ok) {
         setIsSuccess(true);
         setFormData({
@@ -92,10 +94,12 @@ export default function ContactPage() {
           });
         }
       } else {
-        throw new Error('שגיאה בשליחת הטופס');
+        console.error('Form submission error:', response.status, responseData);
+        throw new Error(responseData.error || 'שגיאה בשליחת הטופס');
       }
     } catch (error) {
-      setErrors({ submit: 'אירעה שגיאה. נסי שוב מאוחר יותר.' });
+      console.error('Form submission failed:', error);
+      setErrors({ submit: error instanceof Error ? error.message : 'אירעה שגיאה. נסי שוב מאוחר יותר.' });
     } finally {
       setIsSubmitting(false);
     }

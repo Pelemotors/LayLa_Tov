@@ -19,7 +19,8 @@ export async function sendContactFormEmail(data: ContactFormData): Promise<boole
     }
 
     // Support multiple emails separated by comma or semicolon
-    const emailToEnv = process.env.EMAIL_TO || 'lioralmos@gmail.com';
+    // Default: lior.layla.tov@gmail.com,galsamama@gmail.com (can be overridden in .env.local or Vercel env vars)
+    const emailToEnv = process.env.EMAIL_TO || 'lior.layla.tov@gmail.com,galsamama@gmail.com';
     // Split by comma or semicolon, trim whitespace, and filter empty strings
     const emailRecipients = emailToEnv
       .split(/[,;]/)

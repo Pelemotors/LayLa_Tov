@@ -1,15 +1,30 @@
+
 import { Metadata } from 'next';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
+import { supabaseServer } from '@/lib/supabaseServerClient';
 
 export const metadata: Metadata = {
   title: 'ניהול המלצות - מנהל',
   description: 'ניהול המלצות',
 };
 
-export default function TestimonialsPage() {
-  // TODO: Fetch testimonials from Supabase
-  const testimonials: any[] = [];
+async function getTestimonials() {
+  const { data, error } = await supabaseServer
+    .from('testimonials')
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error('Error fetching testimonials:', error);
+    return [];
+  }
+
+  return data || [];
+}
+
+export default async function TestimonialsPage() {
+  const testimonials = await getTestimonials();
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -17,8 +32,9 @@ export default function TestimonialsPage() {
         <h1 className="text-4xl font-heading font-bold text-text-dark">
           ניהול המלצות
         </h1>
-        <Button variant="primary" size="md">
-          המלצה חדשה
+        {/* לעתיד: קישור לעמוד יצירת המלצה חדשה */}
+        <Button variant="primary" size="md" disabled>
+          המלצה חדשה (בקרוב)
         </Button>
       </div>
 
@@ -39,7 +55,7 @@ export default function TestimonialsPage() {
           <p className="text-text-dark/60 font-body mb-4">
             אין המלצות עדיין
           </p>
-          <Button variant="primary" size="md">
+          <Button variant="primary" size="md" disabled>
             הוסיפי המלצה ראשונה
           </Button>
         </Card>
@@ -71,13 +87,24 @@ export default function TestimonialsPage() {
               </thead>
               <tbody>
                 {testimonials.map((testimonial) => (
-                  <tr key={testimonial.id} className="border-b border-accent-sky/10 hover:bg-accent-sky/5">
-                    <td className="py-4 px-4 font-body text-text-dark">{testimonial.name}</td>
-                    <td className="py-4 px-4 font-body text-text-dark">{testimonial.child_age || '-'}</td>
+                  <tr
+                    key={testimonial.id}
+                    className="border-b border-accent-sky/10 hover:bg-accent-sky/5"
+                  >
+                    <td className="py-4 px-4 font-body text-text-dark">
+                      {testimonial.name}
+                    </td>
+                    <td className="py-4 px-4 font-body text-text-dark">
+                      {testimonial.child_age || '-'}
+                    </td>
                     <td className="py-4 px-4">
-                      {Array.from({ length: testimonial.rating || 0 }).map((_, i) => (
-                        <span key={i} className="text-yellow-400">★</span>
-                      ))}
+                      {Array.from({ length: testimonial.rating || 0 }).map(
+                        (_, i) => (
+                          <span key={i} className="text-yellow-400">
+                            ★
+                          </span>
+                        ),
+                      )}
                     </td>
                     <td className="py-4 px-4">
                       {testimonial.featured ? (
@@ -87,7 +114,11 @@ export default function TestimonialsPage() {
                       )}
                     </td>
                     <td className="py-4 px-4 font-body text-text-dark">
-                      {new Date(testimonial.created_at).toLocaleDateString('he-IL')}
+                      {testimonial.created_at
+                        ? new Date(
+                            testimonial.created_at as string,
+                          ).toLocaleDateString('he-IL')
+                        : '-'}
                     </td>
                     <td className="py-4 px-4">
                       <button className="text-accent-sky hover:text-accent-lavender font-body">
@@ -104,4 +135,3 @@ export default function TestimonialsPage() {
     </div>
   );
 }
-

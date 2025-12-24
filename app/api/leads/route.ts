@@ -48,10 +48,15 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json();
 
+    // Check if this is an update to an existing lead (for quiz progress)
+    const isUpdate = body.lead_id && body.source === 'sleep_quiz';
+
     // Validation
     const errors: string[] = [];
 
-    if (body.source === 'contact_form') {
+    // For updates, name and phone are not required (already saved)
+    if (!isUpdate) {
+      // Validate name and phone for new leads
       if (!body.name || body.name.trim().length === 0) {
         errors.push('שם הוא שדה חובה');
       }
@@ -63,6 +68,9 @@ export async function POST(request: NextRequest) {
           errors.push('מספר טלפון לא תקין');
         }
       }
+    }
+
+    if (body.source === 'contact_form' && !isUpdate) {
       if (!body.child_age || body.child_age.trim().length === 0) {
         errors.push('גיל הילד הוא שדה חובה');
       }
@@ -86,33 +94,119 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Sanitize input
-    const sanitizedData: any = {
-      name: String(body.name || 'שאלון אנונימי').trim().substring(0, 255),
-      phone: String(body.phone || '').trim().substring(0, 20),
-      child_age: String(body.child_age || '').trim().substring(0, 50),
-      message: String(body.message || '').trim().substring(0, 5000),
-      source: body.source || 'contact_form',
-      quiz_score: body.quiz_score ? parseInt(String(body.quiz_score)) : null,
-      quiz_tier: body.quiz_tier ? parseInt(String(body.quiz_tier)) : null,
-    };
+    let data: any;
+    let error: any;
 
-    // Add optional fields only if they exist in the schema
-    // These fields might not exist in older database schemas
-    if (ip !== 'unknown') {
-      sanitizedData.ip_address = ip;
-    }
-    const userAgent = request.headers.get('user-agent');
-    if (userAgent) {
-      sanitizedData.user_agent = userAgent;
-    }
+    if (isUpdate) {
+      // Update existing lead - only update fields that are provided
+      const updateData: any = {};
+      
+      if (body.current_question_index !== undefined) {
+        updateData.current_question_index = parseInt(String(body.current_question_index));
+      }
+      if (body.quiz_completed !== undefined) {
+        updateData.quiz_completed = Boolean(body.quiz_completed);
+      }
+      if (body.quiz_score !== undefined) {
+        updateData.quiz_score = parseInt(String(body.quiz_score));
+      }
+      if (body.quiz_tier !== undefined) {
+        updateData.quiz_tier = parseInt(String(body.quiz_tier));
+      }
 
-    // Insert into Supabase
-    const { data, error } = await supabaseServer
-      .from('leads')
-      .insert([sanitizedData])
-      .select()
-      .single();
+      const { data: updateResult, error: updateError } = await supabaseServer
+        .from('leads')
+        .update(updateData)
+        .eq('id', body.lead_id)
+        .select()
+        .single();
+
+      data = updateResult;
+      error = updateError;
+
+      // Save quiz responses if provided (only on completion)
+      if (body.quiz_responses && Array.isArray(body.quiz_responses) && body.quiz_responses.length > 0 && data?.id) {
+        const responsesToInsert = body.quiz_responses.map((response: any) => ({
+          lead_id: data.id,
+          question_index: response.question_index,
+          answer_value: String(response.answer_value || '').trim(),
+          answer_score: parseInt(String(response.answer_score || 0)),
+        }));
+
+        const { error: responsesError } = await supabaseServer
+          .from('quiz_responses')
+          .insert(responsesToInsert);
+
+        if (responsesError) {
+          console.error('Error saving quiz responses:', responsesError);
+          // Don't fail the entire request if responses fail to save
+        }
+      }
+    } else {
+      // Insert new lead
+      const sanitizedData: any = {
+        name: String(body.name || 'שאלון אנונימי').trim().substring(0, 255),
+        phone: String(body.phone || '').trim().substring(0, 20),
+        child_age: String(body.child_age || '').trim().substring(0, 50),
+        message: String(body.message || '').trim().substring(0, 5000),
+        source: body.source || 'contact_form',
+        quiz_score: body.quiz_score ? parseInt(String(body.quiz_score)) : null,
+        quiz_tier: body.quiz_tier ? parseInt(String(body.quiz_tier)) : null,
+      };
+
+      // Add quiz tracking fields if provided
+      if (body.source === 'sleep_quiz') {
+        if (body.current_question_index !== undefined) {
+          sanitizedData.current_question_index = parseInt(String(body.current_question_index));
+        }
+        if (body.quiz_completed !== undefined) {
+          sanitizedData.quiz_completed = Boolean(body.quiz_completed);
+        }
+        if (body.quiz_started_at) {
+          sanitizedData.quiz_started_at = body.quiz_started_at;
+        } else {
+          // Set quiz_started_at when creating new lead for quiz
+          sanitizedData.quiz_started_at = new Date().toISOString();
+        }
+      }
+
+      // Add optional fields
+      if (ip !== 'unknown') {
+        sanitizedData.ip_address = ip;
+      }
+      const userAgent = request.headers.get('user-agent');
+      if (userAgent) {
+        sanitizedData.user_agent = userAgent;
+      }
+
+      const { data: insertData, error: insertError } = await supabaseServer
+        .from('leads')
+        .insert([sanitizedData])
+        .select()
+        .single();
+
+      data = insertData;
+      error = insertError;
+
+      // Save quiz responses if provided
+      if (body.quiz_responses && Array.isArray(body.quiz_responses) && body.quiz_responses.length > 0 && data?.id) {
+        const responsesToInsert = body.quiz_responses.map((response: any) => ({
+          lead_id: data.id,
+          question_index: response.question_index,
+          answer_value: String(response.answer_value || '').trim(),
+          answer_score: parseInt(String(response.answer_score || 0)),
+        }));
+
+        const { error: responsesError } = await supabaseServer
+          .from('quiz_responses')
+          .insert(responsesToInsert);
+
+        if (responsesError) {
+          console.error('Error saving quiz responses:', responsesError);
+          // Don't fail the entire request if responses fail to save
+        }
+      }
+    }
 
     if (error) {
       console.error('Supabase error:', error);
@@ -122,57 +216,43 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Save quiz responses if provided
-    if (body.quiz_responses && Array.isArray(body.quiz_responses) && body.quiz_responses.length > 0 && data?.id) {
-      const responsesToInsert = body.quiz_responses.map((response: any) => ({
-        lead_id: data.id,
-        question_index: response.question_index,
-        answer_value: String(response.answer_value || '').trim(),
-        answer_score: parseInt(String(response.answer_score || 0)),
-      }));
+    // Send email/WhatsApp notifications only for new leads (not for updates)
+    if (!isUpdate && data?.id) {
+      // Send email notification (non-blocking) - only for new leads
+      console.log('Sending email notification for lead:', data.id);
+      const leadData = {
+        name: String(body.name || '').trim(),
+        phone: String(body.phone || '').trim(),
+        child_age: String(body.child_age || '').trim(),
+        message: String(body.message || '').trim(),
+        source: body.source || 'contact_form',
+        quiz_score: body.quiz_score ? parseInt(String(body.quiz_score)) : null,
+        quiz_tier: body.quiz_tier ? parseInt(String(body.quiz_tier)) : null,
+      };
 
-      const { error: responsesError } = await supabaseServer
-        .from('quiz_responses')
-        .insert(responsesToInsert);
+      sendContactFormEmail(leadData)
+        .then((success) => {
+          if (success) {
+            console.log('Email sent successfully for lead:', data.id);
+          } else {
+            console.error('Email sending failed for lead:', data.id);
+          }
+        })
+        .catch((err) => {
+          console.error('Failed to send email for lead:', data.id, err);
+        });
 
-      if (responsesError) {
-        console.error('Error saving quiz responses:', responsesError);
-        // Don't fail the entire request if responses fail to save
-      }
-    }
-
-    // Send email notification (non-blocking)
-    console.log('Sending email notification for lead:', data.id);
-    sendContactFormEmail({
-      name: sanitizedData.name,
-      phone: sanitizedData.phone,
-      child_age: sanitizedData.child_age,
-      message: sanitizedData.message,
-      source: sanitizedData.source,
-      quiz_score: sanitizedData.quiz_score,
-      quiz_tier: sanitizedData.quiz_tier,
-    })
-      .then((success) => {
-        if (success) {
-          console.log('Email sent successfully for lead:', data.id);
-        } else {
-          console.error('Email sending failed for lead:', data.id);
-        }
-      })
-      .catch((err) => {
-        console.error('Failed to send email for lead:', data.id, err);
+      // Send WhatsApp notification (non-blocking) - only for new leads
+      sendWhatsAppNotification({
+        name: leadData.name,
+        phone: leadData.phone,
+        child_age: leadData.child_age,
+        message: leadData.message,
+        source: leadData.source,
+      }).catch((err) => {
+        console.error('Failed to send WhatsApp:', err);
       });
-
-    // Send WhatsApp notification (non-blocking)
-    sendWhatsAppNotification({
-      name: sanitizedData.name,
-      phone: sanitizedData.phone,
-      child_age: sanitizedData.child_age,
-      message: sanitizedData.message,
-      source: sanitizedData.source,
-    }).catch((err) => {
-      console.error('Failed to send WhatsApp:', err);
-    });
+    }
 
     return NextResponse.json(
       { success: true, lead_id: data.id },

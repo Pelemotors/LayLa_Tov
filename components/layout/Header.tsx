@@ -23,10 +23,10 @@ export const Header: React.FC = () => {
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
           <Link href="/" className="flex flex-col items-start hover:opacity-80 transition-opacity">
-            <span className="text-2xl font-heading font-bold text-text-dark bg-gradient-to-r from-accent-sky to-accent-lavender bg-clip-text text-transparent">
+            <span className="text-2xl md:text-3xl font-heading font-bold text-text-dark bg-gradient-to-r from-accent-sky to-accent-lavender bg-clip-text text-transparent drop-shadow-sm">
               ליאור
             </span>
-            <span className="text-xs text-text-dark/60 font-body hidden sm:block">
+            <span className="text-xs md:text-sm text-text-dark/70 font-body hidden sm:block">
               יועצת שינה והדרכת הורים
             </span>
           </Link>

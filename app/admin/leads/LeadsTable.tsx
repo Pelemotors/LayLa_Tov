@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
@@ -35,13 +35,53 @@ interface QuizResponse {
 }
 
 export function LeadsTable({ initialLeads }: LeadsTableProps) {
-  const [leads, setLeads] = useState<Lead[]>(initialLeads);
+  const [leads, setLeads] = useState<Lead[]>([]);
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [editingLead, setEditingLead] = useState<string | null>(null);
   const [editData, setEditData] = useState<Partial<Lead>>({});
   const [quizResponses, setQuizResponses] = useState<QuizResponse[] | null>(null);
   const [loadingResponses, setLoadingResponses] = useState(false);
   const [showQuizResponses, setShowQuizResponses] = useState(false);
+  const [isLoading, setIsLoading] = useState(true); // Start with true since we're loading
+
+  // Load leads from API on mount and auto-refresh every 10 seconds
+  useEffect(() => {
+    const loadLeads = async () => {
+      setIsLoading(true);
+      try {
+        const response = await fetch('/api/admin/leads');
+        if (response.ok) {
+          const data = await response.json();
+          setLeads(data.leads || []);
+        } else {
+          console.error('Failed to load leads:', response.status);
+          // Fallback to initialLeads if API fails
+          if (initialLeads && initialLeads.length > 0) {
+            setLeads(initialLeads);
+          }
+        }
+      } catch (error) {
+        console.error('Error loading leads:', error);
+        // Fallback to initialLeads if API fails
+        if (initialLeads && initialLeads.length > 0) {
+          setLeads(initialLeads);
+        }
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    // Load leads on mount immediately
+    loadLeads();
+
+    // Auto-refresh every 10 seconds
+    const interval = setInterval(() => {
+      loadLeads();
+    }, 10000); // 10 seconds
+
+    // Cleanup interval on unmount
+    return () => clearInterval(interval);
+  }, [initialLeads]);
 
   const getStatusBadgeVariant = (status: string) => {
     switch (status) {
@@ -128,6 +168,18 @@ export function LeadsTable({ initialLeads }: LeadsTableProps) {
     });
   };
 
+  const refreshLeads = async () => {
+    try {
+      const response = await fetch('/api/admin/leads');
+      if (response.ok) {
+        const data = await response.json();
+        setLeads(data.leads || []);
+      }
+    } catch (error) {
+      console.error('Error refreshing leads:', error);
+    }
+  };
+
   const handleSave = async (leadId: string) => {
     try {
       const response = await fetch(`/api/admin/leads/${leadId}`, {
@@ -143,6 +195,8 @@ export function LeadsTable({ initialLeads }: LeadsTableProps) {
         setLeads(leads.map(l => l.id === leadId ? lead : l));
         setEditingLead(null);
         setEditData({});
+        // Refresh to get latest data
+        await refreshLeads();
       } else {
         const data = await response.json();
         alert(data.error || 'שגיאה בעדכון הליד');
@@ -173,6 +227,8 @@ export function LeadsTable({ initialLeads }: LeadsTableProps) {
         if (selectedLead?.id === leadId) {
           setSelectedLead(null);
         }
+        // Refresh to get latest data
+        await refreshLeads();
       } else {
         const data = await response.json();
         alert(data.error || 'שגיאה במחיקת הליד');
@@ -206,19 +262,32 @@ export function LeadsTable({ initialLeads }: LeadsTableProps) {
     }
   };
 
-  if (leads.length === 0) {
+  if (isLoading && leads.length === 0) {
     return (
       <Card className="text-center py-12">
-        <p className="text-text-dark/60 font-body">
-          אין לידים להצגה
-        </p>
+        <p className="text-text-dark/60 font-body">טוען לידים...</p>
       </Card>
     );
   }
 
   return (
     <>
-      <Card>
+      <div className="mb-4 flex justify-between items-center">
+        <p className="text-sm text-text-dark/60 font-body">
+          הרשימה מתעדכנת אוטומטית כל 10 שניות
+        </p>
+        <Button variant="secondary" size="sm" onClick={refreshLeads} disabled={isLoading}>
+          {isLoading ? 'טוען...' : 'רענון רשימה'}
+        </Button>
+      </div>
+      {leads.length === 0 ? (
+        <Card className="text-center py-12">
+          <p className="text-text-dark/60 font-body mb-4">
+            אין לידים להצגה
+          </p>
+        </Card>
+      ) : (
+        <Card>
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
@@ -373,7 +442,8 @@ export function LeadsTable({ initialLeads }: LeadsTableProps) {
             </tbody>
           </table>
         </div>
-      </Card>
+        </Card>
+      )}
 
       {/* View Modal */}
       {selectedLead && (

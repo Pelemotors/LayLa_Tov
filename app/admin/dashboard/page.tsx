@@ -1,22 +1,81 @@
 import { Metadata } from 'next';
 import { Card } from '@/components/ui/Card';
 import Link from 'next/link';
+import { supabaseServer } from '@/lib/supabaseServerClient';
 
 export const metadata: Metadata = {
   title: 'לוח בקרה - מנהל',
   description: 'לוח בקרה לניהול האתר',
 };
 
-export default function DashboardPage() {
-  // TODO: Fetch real data from Supabase
-  const stats = {
-    newLeadsToday: 0,
-    newLeadsThisWeek: 0,
-    newLeadsThisMonth: 0,
-    totalLeads: 0,
-    publishedPosts: 0,
-    activeTestimonials: 0,
-  };
+async function getDashboardStats() {
+  const now = new Date();
+  
+  // תחילת היום (00:00:00) - באזור הזמן המקומי
+  const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  
+  // תחילת היום הבא (00:00:00) - באזור הזמן המקומי
+  const startOfTomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+
+  // תחילת השבוע (7 הימים האחרונים כולל היום)
+  const startOfWeek = new Date(startOfToday);
+  startOfWeek.setDate(startOfToday.getDate() - 6);
+
+  // תחילת החודש
+  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+
+  try {
+    const [todayRes, weekRes, monthRes, totalRes, postsRes, testimonialsRes] =
+      await Promise.all([
+        supabaseServer
+          .from('leads')
+          .select('id', { count: 'exact', head: true })
+          .gte('created_at', startOfToday.toISOString())
+          .lt('created_at', startOfTomorrow.toISOString()),
+        supabaseServer
+          .from('leads')
+          .select('id', { count: 'exact', head: true })
+          .gte('created_at', startOfWeek.toISOString()),
+        supabaseServer
+          .from('leads')
+          .select('id', { count: 'exact', head: true })
+          .gte('created_at', startOfMonth.toISOString()),
+        supabaseServer
+          .from('leads')
+          .select('id', { count: 'exact', head: true }),
+        supabaseServer
+          .from('blog_posts')
+          .select('id', { count: 'exact', head: true })
+          .eq('published', true),
+        supabaseServer
+          .from('testimonials')
+          .select('id', { count: 'exact', head: true })
+          .eq('featured', true),
+      ]);
+
+    return {
+      newLeadsToday: todayRes.count || 0,
+      newLeadsThisWeek: weekRes.count || 0,
+      newLeadsThisMonth: monthRes.count || 0,
+      totalLeads: totalRes.count || 0,
+      publishedPosts: postsRes.count || 0,
+      activeTestimonials: testimonialsRes.count || 0,
+    };
+  } catch (error) {
+    console.error('Error fetching dashboard stats:', error);
+    return {
+      newLeadsToday: 0,
+      newLeadsThisWeek: 0,
+      newLeadsThisMonth: 0,
+      totalLeads: 0,
+      publishedPosts: 0,
+      activeTestimonials: 0,
+    };
+  }
+}
+
+export default async function DashboardPage() {
+  const stats = await getDashboardStats();
 
   return (
     <div className="container mx-auto px-4 py-8">
